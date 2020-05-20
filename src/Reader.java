@@ -10,13 +10,11 @@ public class Reader extends Thread {
     private Messagehandler m;
     private Socket clientSocket;
     private BufferedReader in;
-    private PrintWriter out;
 
     public Reader(Socket cliente, Messagehandler m) throws IOException {
         this.m=m;
         this.clientSocket= cliente;
         in =  new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        out = new PrintWriter(clientSocket.getOutputStream(),true);
     }
 
     public void run() {
@@ -32,7 +30,6 @@ public class Reader extends Thread {
         }catch (Exception e){
             System.err.println(e);
         }finally {
-            out.close();
             try {
                 clientSocket.close();
                 in.close();
