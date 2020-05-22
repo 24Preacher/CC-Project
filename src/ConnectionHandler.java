@@ -1,41 +1,43 @@
-package src;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 
-public class ConnectionHandler implements Runnable {
+public class ConnectionHandler extends Thread {
     private Socket clientSocket;
     private BufferedReader in;
-    private PrintWriter out;
+    private OutputStream out;
     public ConnectionHandler(Socket s) throws IOException {
         this.clientSocket=s;
         in =  new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        out = new PrintWriter(clientSocket.getOutputStream(),true);
+        out = s.getOutputStream();
     }
     @Override
     public void run() {
         System.out.println("client connected");
-        String str = null;
         try{
-        while (true) {
-            str = in.readLine();
-            System.out.println("cliente disse : " + str);
-            if (str.equals("quit"))
-                break;
-        }
-        }catch (Exception e){
-            System.err.println(e);
-        }finally {
-            out.close();
-            try {
-                clientSocket.close();
-                in.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            int i = 1;
+            String st;
+            String[] array;
+            st = in.readLine();
+            array = st.split(" ");
+            System.out.println(i + st);
+            i++;
+            while (i < 6){
+                st = in.readLine();
+                System.out.println(i + st);
+                i++;
             }
+            Process p = Runtime.getRuntime().exec("wget http://10.3.3.1" + array[1]);
+            p.waitFor();
+            File file = new File(array[1].substring(1));
+            byte[] mb = new byte[(int)file.length()];
+            FileInputStream fs = new FileInputStream(file);
+            BufferedInputStream bs = new BufferedInputStream(fs);
+            bs.read(mb,0,mb.length);
+            out.write(mb,0, mb.length);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
