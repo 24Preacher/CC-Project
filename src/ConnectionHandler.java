@@ -33,11 +33,13 @@ public class ConnectionHandler extends Thread {
             array = st.split(" ");
             System.out.println(i + st);
             i++;
-            bt =st.getBytes();
+            bt = st.getBytes();
             DatagramPacket dp = new DatagramPacket(bt,bt.length, overlay_peers.get(0),6666);
             ds.send(dp);
             while (i < 6){
                 st = in.readLine();
+                bt = null;
+                bt = st.getBytes();
                 DatagramPacket dip = new DatagramPacket(bt,bt.length, overlay_peers.get(0),6666);
                 ds.send(dip);
                 System.out.println(i + st);
