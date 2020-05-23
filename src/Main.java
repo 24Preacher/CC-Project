@@ -1,4 +1,3 @@
-package src;
 import java.net.*;
 import java.util.ArrayList;
 
@@ -33,7 +32,7 @@ public class Main {
         System.out.println("port: "+ port);
         System.out.println("overlay_peers: " + overlay_peers.toString());
         try {
-            Thread listner = new GatewayListner();
+            Thread listner = new src.GatewayListner();
             listner.start();
         } catch (SocketException e) {
             e.printStackTrace();
@@ -42,10 +41,10 @@ public class Main {
             ServerSocket ss = new ServerSocket(80);
             while (true){
                 Socket s = ss.accept();
-                Cliente c = new Cliente(s.getInetAddress());
+                src.Cliente c = new src.Cliente(s.getInetAddress());
                 System.out.println("Aceitou");
                 System.out.println(c.toString());
-                Thread t = new ConnectionHandler(s,overlay_peers,port,target_server);
+                Thread t = new src.ConnectionHandler(s,overlay_peers,port,target_server);
                 t.start();
             }
         } catch (Exception e) {
