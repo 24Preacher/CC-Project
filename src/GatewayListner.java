@@ -94,7 +94,7 @@ public class GatewayListner extends Thread {
                 else if (pacote.getType()==2){
                     synchronized (buffer) {
                         while (buffer.isReady()) {
-                            wait();
+                            buffer.wait();
                         }
                     }
                     if(pacote.getNum()==0){
@@ -103,7 +103,7 @@ public class GatewayListner extends Thread {
                                 buffer.addPacket(pacote);
                             }
                             buffer.sort();
-                            notifyAll();
+                            buffer.notifyAll();
                         }
                     }
                     else{
@@ -112,7 +112,7 @@ public class GatewayListner extends Thread {
                                 buffer.addPacket(pacote);
                                 if (buffer.getsize() == pacote.getNum_fragmentos()) {
                                     buffer.sort();
-                                    notifyAll();
+                                    buffer.notifyAll();
                                 }
                             }
                         }

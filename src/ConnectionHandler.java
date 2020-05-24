@@ -48,7 +48,7 @@ public class ConnectionHandler extends Thread {
             }
             synchronized (buffer) {
                 while (!buffer.isReady()) {
-                    wait();
+                    buffer.wait();
                 }
             }
             while (buffer.isReady()){
@@ -60,7 +60,7 @@ public class ConnectionHandler extends Thread {
             }
             synchronized (buffer) {
                 if (!buffer.isReady())
-                    notifyAll();
+                    buffer.notifyAll();
             }
             out.flush();
             out.close();
