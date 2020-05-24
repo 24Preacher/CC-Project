@@ -46,9 +46,10 @@ public class ConnectionHandler extends Thread {
                 System.out.println(i + st);
                 i++;
             }
-
-            while (!buffer.isReady()){
-                wait();
+            synchronized (buffer) {
+                while (!buffer.isReady()) {
+                    wait();
+                }
             }
             while (buffer.isReady()){
                 Packet p = buffer.getPacket();
@@ -57,8 +58,10 @@ public class ConnectionHandler extends Thread {
 
                 System.out.println("enviar para cliente :" + p.toString());
             }
-            if (!buffer.isReady())
-            notifyAll();
+            synchronized (buffer) {
+                if (!buffer.isReady())
+                    notifyAll();
+            }
             out.flush();
             out.close();
 

@@ -92,23 +92,29 @@ public class GatewayListner extends Thread {
                     file.delete();
                 }
                 else if (pacote.getType()==2){
-                    while (buffer.isReady()){
-                        wait();
+                    synchronized (buffer) {
+                        while (buffer.isReady()) {
+                            wait();
+                        }
                     }
                     if(pacote.getNum()==0){
-                        if(!buffer.isReady()) {
-                            buffer.addPacket(pacote);
+                        synchronized (buffer) {
+                            if (!buffer.isReady()) {
+                                buffer.addPacket(pacote);
+                            }
+                            buffer.sort();
+                            notifyAll();
                         }
-                        buffer.sort();
-                        notifyAll();
                     }
                     else{
-                       if(!buffer.isReady()) {
-                            buffer.addPacket(pacote);
-                            if (buffer.getsize()==pacote.getNum_fragmentos()){
-                                buffer.sort();
-                                notifyAll();
-                           }
+                        synchronized (buffer) {
+                            if (!buffer.isReady()) {
+                                buffer.addPacket(pacote);
+                                if (buffer.getsize() == pacote.getNum_fragmentos()) {
+                                    buffer.sort();
+                                    notifyAll();
+                                }
+                            }
                         }
                     }
 
