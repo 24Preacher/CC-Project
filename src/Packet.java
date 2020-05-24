@@ -6,7 +6,7 @@ public class Packet implements Serializable {
     private String commando; //if type == 1 isto é o comando else nada.
     private byte[] data; // if type == 2 fragmento do ficheiro, else nada
     private int id; // id do Packet sempre unico.
-    private int num_fragmentos;
+    private int num_fragmentos; // num de fragmentos (if type==1 0)
 
     public Packet (int type, String commando,int id){
         this.id=id;
@@ -14,6 +14,7 @@ public class Packet implements Serializable {
         this.commando=commando;
         this.num =-1;
         this.data =null;
+        this.num_fragmentos=0;
     }
 
     public Packet(int type, int id, int num,int num_fragmentos, byte[] data, String commando){
@@ -35,6 +36,7 @@ public class Packet implements Serializable {
         this.num=aux.num;
         this.data=aux.data;
         this.id=aux.id;
+        this.num_fragmentos=aux.num_fragmentos;
 
     }
 
@@ -64,6 +66,17 @@ public class Packet implements Serializable {
 
     public int getNum_fragmentos() {
         return num_fragmentos;
+    }
+
+    @Override
+    public String toString() {
+        return "Packet{" +
+                "type=" + type +
+                ", num=" + num +
+                ", commando='" + commando + '\'' +
+                ", id=" + id +
+                ", num_fragmentos=" + num_fragmentos +
+                '}';
     }
 
     public String getCommando() {

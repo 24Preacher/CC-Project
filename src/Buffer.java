@@ -32,7 +32,7 @@ public class Buffer {
     }
 
     public synchronized void sort(){
-        respostas.sort(new PacketNumComparator());
+        this.respostas.sort(new PacketNumComparator());
         this.isReady=true;
     }
 

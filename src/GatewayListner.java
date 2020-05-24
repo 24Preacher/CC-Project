@@ -29,44 +29,55 @@ public class GatewayListner extends Thread {
                 socket.receive(packet);
                 InetAddress address = packet.getAddress();
                 Packet pacote = new Packet(packet.getData());
+                System.out.println("reciving :" + pacote.toString());
                 if(pacote.getType()==1){
-                    //cenas
                     DatagramSocket resposta = new DatagramSocket();
                     String commando = pacote.getCommando();
                     System.out.println(commando);
                     Process p = Runtime.getRuntime().exec(commando);
                     p.waitFor();
                     File file = new File(commando.substring(commando.lastIndexOf("/")+1));
+                    System.out.println(file.getName());
                     if (file.length()>4*1024){
                         long tamanho = file.length();
                         long trasferido =0;
                         FileInputStream fs = new FileInputStream(file);
                         BufferedInputStream bs = new BufferedInputStream(fs);
                         int num=1;
-                        int num_framentos= (int) ((tamanho/(4*1024))+(tamanho%(4*1024)));
+                        int num_fragmentos;
+                        if(tamanho%(4*1024)==0){
+                            num_fragmentos = (int) (tamanho/(4*1024));
+                        }else{
+                            num_fragmentos = (int) ((tamanho/(4*1024))+1);
+                        }
                         while(tamanho>trasferido){
                             if(trasferido+4*1024 > tamanho){
                                 byte[] mb = new byte[(int) (tamanho - trasferido)];
                                 bs.read(mb,0,mb.length);
-                                Packet pacotefile = new Packet(2,1,num,num_framentos,mb,null);
+                                Packet pacotefile = new Packet(2,1,num,num_fragmentos,mb,null);
                                 byte[]bt = pacotefile.tobytes();
                                 DatagramPacket dp = new DatagramPacket(bt,bt.length,address,6666);
                                 resposta.send(dp);
+                                System.out.println("sending :" + pacotefile.toString());
                                 trasferido+=4*1024;
                                 num++;
                             }
-                            byte[] mb = new byte[4*1024];
-                            bs.read(mb,0,mb.length);
-                            Packet pacotefile = new Packet(2,1, num,num_framentos,mb,null);
-                            byte[]bt = pacotefile.tobytes();
-                            DatagramPacket dp = new DatagramPacket(bt,bt.length,address,6666);
-                            resposta.send(dp);
-                            trasferido+=4*1024;
-                            num++;
+                            else {
+                                byte[] mb = new byte[4 * 1024];
+                                bs.read(mb, 0, mb.length);
+                                Packet pacotefile = new Packet(2, 1, num, num_fragmentos, mb, null);
+                                byte[] bt = pacotefile.tobytes();
+                                DatagramPacket dp = new DatagramPacket(bt, bt.length, address, 6666);
+                                resposta.send(dp);
+                                System.out.println("sending :" + pacotefile.toString());
+                                trasferido += 4 * 1024;
+                                num++;
+                                Thread.sleep(10);
+                            }
                         }
 
-                        //lol
-                    }else{
+                    }
+                    else{
                         byte[] mb = new byte[(int)file.length()];
                         FileInputStream fs = new FileInputStream(file);
                         BufferedInputStream bs = new BufferedInputStream(fs);
@@ -75,14 +86,15 @@ public class GatewayListner extends Thread {
                         byte[]bt = pacotefile.tobytes();
                         DatagramPacket dp = new DatagramPacket(bt,bt.length,address,6666);
                         resposta.send(dp);
-
-
+                        System.out.println("sending :" + pacotefile.toString());
                     }
-
-
                     resposta.close();
+                    file.delete();
                 }
                 else if (pacote.getType()==2){
+                    while (buffer.isReady()){
+                        wait();
+                    }
                     if(pacote.getNum()==0){
                         if(!buffer.isReady()) {
                             buffer.addPacket(pacote);
@@ -98,20 +110,12 @@ public class GatewayListner extends Thread {
                                 notifyAll();
                            }
                         }
-
-                        //o pacota fragmentado
                     }
 
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-            InetAddress address = packet.getAddress();
-            int port = packet.getPort();
-            //String received = new String(packet.getData(), 0, packet.getLength());
-            //System.out.println(received);
-
             Arrays.fill(buf,(byte) 0 );
 
         }
